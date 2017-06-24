@@ -13,14 +13,14 @@ namespace algorithms.graphs
     // int Vertex(int index) { return vertices[index]; }
     // int Degree(int vertex) { return adjacentVertex[vertex].Length; }
     // int AdjacentVertex(int vertex, int index) { return adjacentVertex[vertex][index]; }
-    // int AdjacentWeight(int vertex, int index) { return adjacentWeight[vertex][index]; }
+    // double AdjacentWeight(int vertex, int index) { return adjacentWeight[vertex][index]; }
     // string ToString()
     // -------------------------------------------------------------------------
     public class Edge
     {
         public int V { get; set; }
         public int U { get; set; }
-        public int W { get; set; }
+        public double W { get; set; }
     }
 
     public interface IGraph
@@ -33,14 +33,14 @@ namespace algorithms.graphs
 
     public interface IWeightedGraph
     {
-        int AdjacentWeight(int vertex, int index);
+        double AdjacentWeight(int vertex, int index);
     }
 
     public class Graph: IWeightedGraph
     {
         int[] vertices = null;
         int[][] adjacentVertex = null;
-        int[][] adjacentWeight = null;
+        double[][] adjacentWeight = null;
 
         public Graph(IEnumerable<int> vertices, IEnumerable<Edge> edges, bool directed = false, bool weighted = false)
         {
@@ -50,7 +50,7 @@ namespace algorithms.graphs
             for (int i = 1; i < this.vertices.Length; i++)
                 if (vmax < this.vertices[i]) vmax = this.vertices[i];
             adjacentVertex = new int[vmax + 1][];
-            if (weighted) adjacentWeight = new int[vmax + 1][];
+            if (weighted) adjacentWeight = new double[vmax + 1][];
 
             int[] deg = new int[vmax + 1];
             foreach (Edge e in edges)
@@ -61,7 +61,7 @@ namespace algorithms.graphs
             for (int i = 0; i < vmax + 1; i++)
             {
                 adjacentVertex[i] = new int[deg[i]];
-                if (weighted) adjacentWeight[i] = new int[deg[i]];
+                if (weighted) adjacentWeight[i] = new double[deg[i]];
             }
 
             for (int i = 0; i < vmax + 1; i++) deg[i] = 0;
@@ -79,13 +79,13 @@ namespace algorithms.graphs
             }
         }
 
-        public Graph(int N, IEnumerable<Edge> edges, bool directed = false, bool weighted = false) : this(Enumerable.Range(0, N), edges, directed, weighted) {  }
+        public Graph(int N, IEnumerable<Edge> edges, bool zeroindex = true, bool directed = false, bool weighted = false) : this(Enumerable.Range(zeroindex ? 0 : 1, N), edges, directed, weighted) {  }
 
         public int VertexCount { get { return vertices.Length; } }
         public int Vertex(int index) { return vertices[index]; }
         public int Degree(int vertex) { return adjacentVertex[vertex].Length; }
         public int AdjacentVertex(int vertex, int index) { return adjacentVertex[vertex][index]; }
-        public int AdjacentWeight(int vertex, int index) { return adjacentWeight[vertex][index]; }
+        public double AdjacentWeight(int vertex, int index) { return adjacentWeight[vertex][index]; }
 
         public override string ToString()
         {
