@@ -20,11 +20,14 @@ namespace algorithms.structures
     //
     // LinkedListArray(LinkedListHeap<T> heap)
     // LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items)
-    // IEnumerable<T> Items
+    // void First()
+    // bool Next()
+    // void Last()
+    // T Current
+    // bool Empty
     // bool Add(T item)
     // void Clear()
-    // bool Find(T item)
-    // bool Remove(T item)
+    // bool Remove()
     // -------------------------------------------------------------------------
     public struct LinkedListItem<T> 
     {
@@ -100,7 +103,8 @@ namespace algorithms.structures
     {
         LinkedListHeap<T> heap = null;
         int first = -1;
-        int current = -1;
+        int curr = -1;
+        int prev = -1;
         public LinkedListArray(LinkedListHeap<T> heap)
         {
             this.heap = heap;
@@ -112,19 +116,23 @@ namespace algorithms.structures
         }
         public void First()
         {
-            current = first;
+            curr = first;
+            prev = first;
         }
         public bool Next()
         {
-            if (current == -1 || heap[current].Next == -1) return false;
-            current = heap[current].Next;
+            if (curr == -1 || heap[curr].Next == -1) return false;
+            if (curr != first) prev = heap[prev].Next;
+            curr = heap[curr].Next;
+
             return true;
         }
         public void Last()
         {
-            while (current > -1 && heap[current].Next > -1) current = heap[current].Next;
+            while (Next());
         }
-        public T Current { get { return heap[current].Data; } }
+        public T Current { get { return heap[curr].Data; } }
+        public bool Empty { get { return first == -1; } }
         public bool Add(T item)
         {
             int index = heap.Pop();
