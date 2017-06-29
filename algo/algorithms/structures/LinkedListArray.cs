@@ -79,7 +79,7 @@ namespace algorithms.structures
         }
     }
 
-    public class LinkedListArraySet<T> where T : IComparable
+    public class LinkedListArraySet<T>
     {
         LinkedListHeap<T> heap;
         public LinkedListArraySet(int capacity)
@@ -96,7 +96,7 @@ namespace algorithms.structures
         }
     }
 
-    public class LinkedListArray<T> where T: IComparable
+    public class LinkedListArray<T>
     {
         LinkedListHeap<T> heap = null;
         int first = -1;
@@ -127,49 +127,37 @@ namespace algorithms.structures
         public T Current { get { return heap[current].Data; } }
         public bool Add(T item)
         {
-            int index = heap.Pop(first, item);
+            int index = heap.Pop();
             if (index == -1) return false;
-            first = index;
+            heap.SetData(index, item);
+            if (first == -1)
+            {
+                first = index;
+                heap.SetNext(index, -1);
+                current = index;
+            }
+            if (current == -1) current = first;
+            heap.SetNext(index, heap[current].Next);
+            heap.SetNext(current, index);
+            current = index;
             return true;
         }
         public void Clear()
         {
             while (first != -1)
             {
+                int next = heap[first].Next;
                 heap.Push(first);
-                first = heap[first].Next;
+                first = next;
             }
+            current = -1;
         }
-        public bool Find(T item)
-        {
-            int index = first;
-            while (index != -1)
-            {
-                if (heap[index].Data.Equals(item)) return true;
-                index = heap[index].Next;
-            }
-            return false;
-        }
-        public bool Remove(T item) {
-            if (heap[first].Data.Equals(item))
-            {
-                int push = first;
-                first = heap[first].Next;
-                heap.Push(push);
-                return true;
-            }
-            int index = heap[first].Next;
-            int prev = first;
-            while (index != -1)
-            {
-                if (heap[index].Data.Equals(item))
-                {
-                    heap.Push(prev, index);
-                    return true;
-                }
-                index = heap[index].Next;
-            }
-            return false;
+        public bool Remove() {
+            if (current == -1) return false;
+            int next = heap[current].Next;
+            heap.Push(current);
+            current = next;
+            return true;
         }
     }
     // -------------------------------------------------------------------------
