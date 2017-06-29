@@ -7,9 +7,16 @@ namespace algorithms.structures
     //
     // LinkedListHeap(int capacity)
     // LinkedListItem<T> this[int index]
-    // int Pop(int index, T data)
+    // void SetNext(int index, int next)
+    // void SetData(int index, T data)
+    // int Pop()
+    // int Pop(int prev)
     // void Push(int index)
     // void Push(int prev, int index)
+    //
+    // LinkedListArraySet<T>(int capacity)
+    // LinkedListArray<T> CreateLinkedListArray()
+    // LinkedListArray<T> CreateLinkedListArray(IEnumerable<T> items)
     //
     // LinkedListArray(LinkedListHeap<T> heap)
     // LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items)
@@ -38,12 +45,26 @@ namespace algorithms.structures
             first = 0;
         }
         public LinkedListItem<T> this[int index] { get { return heap[index]; } }
-        public int Pop(int index, T data) {
+        public void SetNext(int index, int next)
+        {
+            heap[index].Next = next;
+        }
+        public void SetData(int index, T data)
+        {
+            heap[index].Data = data;
+        }
+        public int Pop()
+        {
             if (first == -1) return -1;
             int pop = first;
-            first = heap[first].Next;
-            heap[pop].Next = index;
-            heap[pop].Data = data;
+            first = heap[pop].Next;
+            return pop;
+        }
+        public int Pop(int prev)
+        {
+            if (heap[prev].Next == -1) return -1;
+            int pop = heap[prev].Next;
+            heap[prev].Next = heap[pop].Next;
             return pop;
         }
         public void Push(int index)
@@ -53,9 +74,25 @@ namespace algorithms.structures
         }
         public void Push(int prev, int index)
         {
-            heap[prev].Next = heap[index].Next;
-            heap[index].Next = first;
-            first = index;
+            heap[index].Next = heap[prev].Next;
+            heap[prev].Next = index;
+        }
+    }
+
+    public class LinkedListArraySet<T> where T : IComparable
+    {
+        LinkedListHeap<T> heap;
+        public LinkedListArraySet(int capacity)
+        {
+            heap = new LinkedListHeap<T>(capacity);
+        }
+        public LinkedListArray<T> CreateLinkedListArray()
+        {
+            return new LinkedListArray<T>(heap);
+        }
+        public LinkedListArray<T> CreateLinkedListArray(IEnumerable<T> items)
+        {
+            return new LinkedListArray<T>(heap, items);
         }
     }
 
@@ -63,27 +100,31 @@ namespace algorithms.structures
     {
         LinkedListHeap<T> heap = null;
         int first = -1;
+        int current = -1;
         public LinkedListArray(LinkedListHeap<T> heap)
         {
             this.heap = heap;
-            first = -1;
         }
         public LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items)
         {
             this.heap = heap;
-            first = -1;
             foreach (T item in items) Add(item);
         }
-        public IEnumerable<T> Items {
-            get {
-                int index = first;
-                while (index != -1)
-                {
-                    yield return heap[index].Data;
-                    index = heap[index].Next;
-                }
-            }
+        public void First()
+        {
+            current = first;
         }
+        public bool Next()
+        {
+            if (current == -1 || heap[current].Next == -1) return false;
+            current = heap[current].Next;
+            return true;
+        }
+        public void Last()
+        {
+            while (current > -1 && heap[current].Next > -1) current = heap[current].Next;
+        }
+        public T Current { get { return heap[current].Data; } }
         public bool Add(T item)
         {
             int index = heap.Pop(first, item);
