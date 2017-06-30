@@ -15,12 +15,14 @@ namespace algorithms.structures
     //
     // LinkedListArray(LinkedListHeap<T> heap)
     // LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items)
-    // void First()
-    // bool Next()
-    // void Last()
+    // int Count
     // T Current
-    // bool Empty
-    // bool Add(T item)
+    // void First()
+    // void Last()
+    // bool Next()
+    // bool Prev()
+    // bool AddAfter(T item)
+    // bool AddBefore(T item)
     // void Clear()
     // bool Remove()
     // -------------------------------------------------------------------------
@@ -119,6 +121,7 @@ namespace algorithms.structures
                 first = index;
                 last = index;
                 current = index;
+                count++;
                 return true;
             }
             if (current == -1) current = first;
@@ -126,60 +129,77 @@ namespace algorithms.structures
             int next = heap.Next[current];
             heap.Next[current] = index;
             heap.Next[index] = next;
-            if (next == -1) last = index;
-
-            int prev = 
-
-
-
-
-
-
-            heap.SetData(index, item);
-            if (first == -1)
-            {
-                first = index;
-                heap.SetNext(index, -1);
-                current = index;
-            }
-            if (current == -1) current = first;
-            heap.SetNext(index, heap[current].Next);
-            heap.SetNext(current, index);
+            if (next > -1)
+                heap.Prev[next] = index;
+            else
+                last = index;
+            heap.Prev[index] = current;
             current = index;
+            count++;
             return true;
         }
         public bool AddBefore(T item)
         {
             int index = heap.Pop();
             if (index == -1) return false;
-            heap.SetData(index, item);
+            heap.Heap[index] = item;
+
             if (first == -1)
             {
+                heap.Next[index] = -1;
+                heap.Prev[index] = -1;
                 first = index;
-                heap.SetNext(index, -1);
+                last = index;
                 current = index;
+                count++;
+                return true;
             }
             if (current == -1) current = first;
-            heap.SetNext(index, heap[current].Next);
-            heap.SetNext(current, index);
+
+            int prev = heap.Prev[current];
+            heap.Prev[current] = index;
+            heap.Prev[index] = prev;
+            if (prev > -1)
+                heap.Next[prev] = index;
+            else
+                first = index;
+            heap.Next[index] = current;
             current = index;
+            count++;
             return true;
         }
         public void Clear()
         {
-            while (first != -1)
+            current = first;
+            while (current > -1)
             {
-                int next = heap[first].Next;
-                heap.Push(first);
-                first = next;
+                int push = current;
+                current = heap.Next[current];
+                heap.Push(push);
             }
-            current = -1;
+            first = -1;
+            last = -1;
+            count = 0;
         }
         public bool Remove() {
             if (current == -1) return false;
-            int next = heap[current].Next;
+            int next = heap.Next[current];
+            int prev = heap.Prev[current];
             heap.Push(current);
-            current = next;
+
+            if (next > -1)
+                heap.Prev[next] = prev;
+            else
+                last = prev;
+
+            if (prev > -1)
+                heap.Next[prev] = next;
+            else
+                first = next;
+
+            current = prev;
+            if (current == -1) current = first;
+            count--;
             return true;
         }
     }
