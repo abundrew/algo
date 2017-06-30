@@ -6,13 +6,8 @@ namespace algorithms.structures
     // ----- Linked List Array -------------------------------------------------
     //
     // LinkedListHeap(int capacity)
-    // LinkedListItem<T> this[int index]
-    // void SetNext(int index, int next)
-    // void SetData(int index, T data)
     // int Pop()
-    // int Pop(int prev)
     // void Push(int index)
-    // void Push(int prev, int index)
     //
     // LinkedListArraySet<T>(int capacity)
     // LinkedListArray<T> CreateLinkedListArray()
@@ -29,56 +24,33 @@ namespace algorithms.structures
     // void Clear()
     // bool Remove()
     // -------------------------------------------------------------------------
-    public struct LinkedListItem<T> 
-    {
-        public int Next { get; set; }
-        public T Data { get; set; }
-    }
-
     public class LinkedListHeap<T>
     {
-        LinkedListItem<T>[] heap = null;
-        int first = 0;
+        public T[] Heap { get; private set; }
+        public int[] Next { get; private set; }
+        public int[] Prev { get; private set; }
+        int first;
         public LinkedListHeap(int capacity)
         {
-            heap = new LinkedListItem<T>[capacity];
+            Heap = new T[capacity];
+            Next = new int[capacity];
+            Prev = new int[capacity];
             for (int i = 0; i < capacity - 1; i++)
-                heap[i].Next = i + 1;
-            heap[capacity - 1].Next = -1;
+                Next[i] = i + 1;
+            Next[capacity - 1] = -1;
             first = 0;
-        }
-        public LinkedListItem<T> this[int index] { get { return heap[index]; } }
-        public void SetNext(int index, int next)
-        {
-            heap[index].Next = next;
-        }
-        public void SetData(int index, T data)
-        {
-            heap[index].Data = data;
         }
         public int Pop()
         {
             if (first == -1) return -1;
             int pop = first;
-            first = heap[pop].Next;
-            return pop;
-        }
-        public int Pop(int prev)
-        {
-            if (heap[prev].Next == -1) return -1;
-            int pop = heap[prev].Next;
-            heap[prev].Next = heap[pop].Next;
+            first = Next[pop];
             return pop;
         }
         public void Push(int index)
         {
-            heap[index].Next = first;
+            Next[index] = first;
             first = index;
-        }
-        public void Push(int prev, int index)
-        {
-            heap[index].Next = heap[prev].Next;
-            heap[prev].Next = index;
         }
     }
 
@@ -101,39 +73,82 @@ namespace algorithms.structures
 
     public class LinkedListArray<T>
     {
-        LinkedListHeap<T> heap = null;
-        int first = -1;
-        int curr = -1;
-        int prev = -1;
+        LinkedListHeap<T> heap;
+        int first;
+        int last;
+        int current;
+        int count;
         public LinkedListArray(LinkedListHeap<T> heap)
         {
             this.heap = heap;
+            first = -1;
+            last = -1;
+            current = -1;
+            count = 0;
         }
-        public LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items)
+        public LinkedListArray(LinkedListHeap<T> heap, IEnumerable<T> items) : this(heap)
         {
-            this.heap = heap;
-            foreach (T item in items) Add(item);
+            foreach (T item in items) AddAfter(item);
         }
-        public void First()
-        {
-            curr = first;
-            prev = first;
-        }
+        public int Count { get { return count; } }
+        public T Current { get { return current > -1 ? heap.Heap[current] : default(T); } }
+        public void First() { current = first; }
+        public void Last() { current = last; }
         public bool Next()
         {
-            if (curr == -1 || heap[curr].Next == -1) return false;
-            if (curr != first) prev = heap[prev].Next;
-            curr = heap[curr].Next;
-
+            if (current == -1 || heap.Next[current] == -1) return false;
+            current = heap.Next[current];
             return true;
         }
-        public void Last()
+        public bool Prev()
         {
-            while (Next());
+            if (current == -1 || heap.Prev[current] == -1) return false;
+            current = heap.Prev[current];
+            return true;
         }
-        public T Current { get { return heap[curr].Data; } }
-        public bool Empty { get { return first == -1; } }
-        public bool Add(T item)
+        public bool AddAfter(T item)
+        {
+            int index = heap.Pop();
+            if (index == -1) return false;
+            heap.Heap[index] = item;
+
+            if (first == -1)
+            {
+                heap.Next[index] = -1;
+                heap.Prev[index] = -1;
+                first = index;
+                last = index;
+                current = index;
+                return true;
+            }
+            if (current == -1) current = first;
+
+            int next = heap.Next[current];
+            heap.Next[current] = index;
+            heap.Next[index] = next;
+            if (next == -1) last = index;
+
+            int prev = 
+
+
+
+
+
+
+            heap.SetData(index, item);
+            if (first == -1)
+            {
+                first = index;
+                heap.SetNext(index, -1);
+                current = index;
+            }
+            if (current == -1) current = first;
+            heap.SetNext(index, heap[current].Next);
+            heap.SetNext(current, index);
+            current = index;
+            return true;
+        }
+        public bool AddBefore(T item)
         {
             int index = heap.Pop();
             if (index == -1) return false;
