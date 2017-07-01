@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace algorithms.structures
 {
     // ----- Linked List Array -------------------------------------------------
+    //
+    // Doubly linked lists (generic) inplemented with sharing arrays
     //
     // LinkedListHeap(int capacity)
     // int Pop()
@@ -201,6 +202,12 @@ namespace algorithms.structures
             if (current == -1) current = first;
             count--;
             return true;
+        }
+        public IEnumerable<T> GetItems()
+        {
+            First();
+            if (Count > 0) yield return Current;
+            while (Next()) yield return Current;
         }
     }
     // -------------------------------------------------------------------------

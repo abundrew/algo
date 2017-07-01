@@ -10,7 +10,7 @@ namespace tests.structures
     public class LinkedListArrayTests
     {
         [TestMethod]
-        public void TestM_LinkedListArray()
+        public void Test_LinkedListArray()
         {
             // arrange
             int N = 10;
@@ -45,12 +45,12 @@ namespace tests.structures
             {
                 int j = rnd.Next(N);
                 int cnt = lla[j].Count;
-                if (cnt == 0) continue;
+                if (cnt < 2) continue;
 
                 lla[j].First();
                 int k = rnd.Next(cnt);
-                int k1 = 0;
-                while (k-- > 0 && lla[j].Next()) k1++;
+                int k1 = k;
+                while (k-- > 0) lla[j].Next();
                 long x = lla[j].Current;
                 long x1 = lst[j][k1];
                 lla[j].Remove();
@@ -59,29 +59,25 @@ namespace tests.structures
                 j = rnd.Next(N);
                 lla[j].First();
                 cnt = lla[j].Count;
-                k = cnt > 0 ? rnd.Next(cnt) : 0;
-                k1 = 0;
-                while (k-- > 0 && lla[j].Next()) k1++;
+                k = rnd.Next(cnt);
+                k1 = k;
+                while (k-- > 0) lla[j].Next();
                 lla[j].AddAfter(x);
-                lst[j].Insert(k1 + lla[j].Count > 1 ? 1 : 0, x);
+                lst[j].Insert(k1 + 1, x);
             }
             int count2 = 0;
             for (int i = 0; i < N; i++) count2 += lla[i].Count;
 
             // assert
-            Assert.AreEqual(count1, count2, "LinkedListArray.LinkedListArray is not correct");
             for (int i = 0; i < N; i++)
             {
-                Assert.AreEqual(lla[i].Count, lst[i].Count, "LinkedListArray.LinkedListArray is not correct");
-                if (lla[i].Count > 0)
-                {
-                    int k = 0;
-                    lla[i].First();
-                    Assert.AreEqual(lla[i].Current, lst[i][k], "LinkedListArray.LinkedListArray is not correct");
-                    while (lla[i].Next())
-                    {
-                        Assert.AreEqual(lla[i].Current, lst[i][++k], "LinkedListArray.LinkedListArray is not correct");
-                    }
+                long[] lst2 = lla[i].GetItems().ToArray();
+
+                Assert.AreEqual(lla[i].Count, lst[i].Count, "Test_LinkedListArray FAILED.");
+                Assert.AreEqual(lst2.Length, lst[i].Count, "Test_LinkedListArray FAILED.");
+
+                for (int j = 0; j < lla[i].Count; j++) { 
+                    Assert.AreEqual(lst2[j], lst[i][j], "Test_LinkedListArray FAILED.");
                 }
             }
         }
